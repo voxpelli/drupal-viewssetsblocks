@@ -1,0 +1,42 @@
+<?php
+// $Id: token.module,v 1.7.4.38 2010/09/30 19:39:43 davereid Exp $
+
+/**
+ * @file
+ * The Views Sets Blocks module.
+ */
+
+/**
+ * Implementation of hook_views_api_version().
+ */
+function viewssetsblocks_views_api_version() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'viewssetsblocks'),
+  );
+}
+
+/**
+ * Implementation of hook_views_plugins
+ */
+function viewssetsblocks_views_plugins() {
+  return array(
+    'display' => array(
+      'viewssetsblocks' => array(
+        'title' => t('Sets Blocks'),
+        'help' => t('Display the view as blocks based on sets.'),
+        'handler' => 'viewssetsblocks_plugin_display_setsblocks',
+        'parent' => 'views_plugin_display_block',
+        'theme' => 'views_view',
+        'uses hook block' => TRUE,
+        'use ajax' => TRUE,
+        'use pager' => TRUE,
+        'use more' => TRUE,
+        'accept attachments' => TRUE,
+        'admin' => t('Sets Blocks'),
+        'path' => drupal_get_path('module', 'viewssetsblocks') . '/includes',
+      ),
+    ),
+  );
+}
+
