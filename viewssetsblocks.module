@@ -26,7 +26,7 @@ function viewssetsblocks_views_plugins() {
         'title' => t('Sets Blocks'),
         'help' => t('Display the view as blocks based on sets.'),
         'handler' => 'viewssetsblocks_plugin_display_setsblocks',
-        'parent' => 'views_plugin_display_block',
+        'parent' => 'block',
         'theme' => 'views_view',
         'uses hook block' => TRUE,
         'use ajax' => TRUE,

@@ -18,42 +18,6 @@ class viewssetsblocks_plugin_display_setsblocks extends views_plugin_display_blo
     return $options;
   }
 
-
-  /**
-   * The default block handler doesn't support configurable items,
-   * but extended block handlers might be able to do interesting
-   * stuff with it.
-   */
-  // function execute_hook_block($op = 'list', $delta = 0, $edit = array()) {
-  //   if ($op == 'list') {
-  //     $delta = $this->view->name . '-' . $this->display->id;
-  //     $desc = $this->get_option('block_description');
-  // 
-  //     if (empty($desc)) {
-  //       $desc = t('@view: @display', array('@view' => $this->view->name, '@display' => $this->display->display_title));
-  //     }
-  //     return array(
-  //       $delta => array(
-  //         'info' => $desc,
-  //         'cache' => $this->get_cache_type()
-  //       )
-  //     );
-  //   }
-  // }
-
-  /**
-   * The display block handler returns the structure necessary for a block.
-   */
-  // function execute() {
-  //   // Prior to this being called, the $view should already be set to this
-  //   // display, and arguments should be set on the view.
-  //   $info['content'] = $this->view->render();
-  //   $info['subject'] = filter_xss_admin($this->view->get_title());
-  //   if (!empty($this->view->result) || $this->get_option('empty') || !empty($this->view->style_plugin->definition['even empty'])) {
-  //     return $info;
-  //   }
-  // }
-
   /**
    * Provide the summary for page options in the views UI.
    *
@@ -94,6 +58,12 @@ class viewssetsblocks_plugin_display_setsblocks extends views_plugin_display_blo
           '#description' => t('This will generate the blocks and will be the arguments for those blocks.'),
           '#default_value' => $this->get_option('block_sets'),
         );
+        $form['block_sets_help'] = array(
+          '#type' => 'item',
+          '#title' => t('Iterative sets'),
+          '#description' => t("The following sets can be used in the argument to fetch many different variations of the feed - one for each combination of items in the sets used."),
+          '#value' => theme('sets_help'),
+        );
         break;
     }
   }
@@ -112,9 +82,57 @@ class viewssetsblocks_plugin_display_setsblocks extends views_plugin_display_blo
     }
   }
 
-  function pre_execute() {
-    $block_sets = $this->get_option('block_sets');
-    $this->view->set_arguments(array(2));
-    parent::pre_execute();
+  /**
+   * The default block handler doesn't support configurable items,
+   * but extended block handlers might be able to do interesting
+   * stuff with it.
+   */
+  function execute_hook_block($op = 'list', $delta = 0, $edit = array()) {
+    if ($op == 'list') {
+      $blocks = array();
+
+      $desc = $this->get_option('block_description');
+
+      if (empty($desc)) {
+        $desc = check_plain($this->view->name) . '-' . check_plain($this->display->display_title) . ':';
+      }
+
+      $block_sets = $this->get_option('block_sets');
+      $variants = sets_string_get($block_sets);
+
+      foreach ($variants as $variant) {
+        $delta = '-setsblocks_' . base64_encode($variant['string']) . '-' . $this->view->name . '-' . $this->display->id;
+        $blocks[$delta] =  array(
+          'info' => $desc . ' ' . check_plain($variant['string']),
+          'cache' => $this->get_cache_type()
+        );
+      }
+
+      return $blocks;
+    }
+  }
+
+  /**
+   * Render any special blocks provided for this display.
+   */
+  function view_special_blocks($type) {
+    if (strpos($type, '-setsblocks') === 0) {
+      // avoid interfering with the admin forms.
+      if (arg(0) == 'admin' && arg(1) == 'build' && arg(2) == 'views') {
+        return;
+      }
+
+      list($type, $variant) = explode('_', $type, 2);
+
+      $variant = base64_decode($variant);
+      $args = explode('/', $variant);
+
+      $this->view->set_arguments($args);
+
+      return $this->view->execute_display();
+    }
+    else {
+      return parent::view_special_blocks($type);
+    }
   }
 }

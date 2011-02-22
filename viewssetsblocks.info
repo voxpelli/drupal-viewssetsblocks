@@ -1,6 +1,7 @@
 ; $Id$
 name = "Views Sets Blocks"
 dependencies[] = "views"
+dependencies[] = "sets"
 description = "Provide a Block display for Views that supports the Sets module."
 package = "Views"
 core = "6.x"
