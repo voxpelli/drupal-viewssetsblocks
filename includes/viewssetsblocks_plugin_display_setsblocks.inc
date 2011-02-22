@@ -129,7 +129,11 @@ class viewssetsblocks_plugin_display_setsblocks extends views_plugin_display_blo
 
       $this->view->set_arguments($args);
 
-      return $this->view->execute_display();
+      $info = $this->view->execute_display();
+      if ($info) {
+        $info['view'] = $this->view;
+      }
+      return $info;
     }
     else {
       return parent::view_special_blocks($type);
