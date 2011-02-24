@@ -55,7 +55,7 @@ class viewssetsblocks_plugin_display_setsblocks extends views_plugin_display_blo
         $form['#title'] .= t('Block Sets Arguments');
         $form['block_sets'] = array(
           '#type' => 'textfield',
-          '#description' => t('This will generate the blocks and will be the arguments for those blocks.'),
+          '#description' => t('The arguments for the blocks. One block will be generated for each combination of values. Multiple arguments are separated by a "/".'),
           '#default_value' => $this->get_option('block_sets'),
         );
         $form['block_sets_help'] = array(
